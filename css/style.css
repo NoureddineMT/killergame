@@ -1,0 +1,8 @@
+#history{
+    border: solid 3px black;
+    overflow-y: scroll;
+    width: 400px;
+    max-width: 400px;
+    height: 300px;
+    max-height: 300px;
+}
