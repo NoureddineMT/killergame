@@ -6,31 +6,30 @@ class Tueur {
         this.hp = hp;
 
     }
-
     attack(adver) {
-        let randomProbaDeath = Math.random()
-        let randomProbaDammage = Math.random()
-        let randomDeathWithDammage = Math.random()
+        let randomProbaDeath = Math.random();
+        let randomProbaDammage = Math.random();
+        let randomDeathWithDammage = Math.random();
         let survivorIndex = Math.floor(Math.random() * survivor.length);
-
-            if (randomProbaDeath < adver[survivorIndex].probaDeath) {
-                history.innerHTML += "<p>"+"Jason a tué " + adver[survivorIndex].nameHero + " il reste : " + (adver.length - 1) + " Heros"+"</p>"
-                document.getElementById(`${adver[survivorIndex].nameHero}`).classList.add("bg-danger")
-                adver.splice(survivorIndex, 1);
-            } else if (randomProbaDammage < adver[survivorIndex].probaDammage) {
-                let damage = 10;
-                this.hp -= damage;
-                history.innerHTML += "<p>"+ adver[survivorIndex].nameHero +" a esquivé et a infligé 10 points de dégats à Jason"+"</p>"
-                document.getElementById(`${adver[survivorIndex].nameHero}`).classList.add("bg-success")
-            } else if (randomDeathWithDammage < adver[survivorIndex].probaDeathWithDammage) {
-                let damage = 15;
-                this.hp -= damage;
-                document.getElementById(`${adver[survivorIndex].nameHero}`).classList.add("bg-warning")
-                history.innerHTML += "<p>" + adver[survivorIndex].nameHero + " est mort en infligeant 15 dégats à Jason"+"</p>"
-                adver.splice(survivorIndex, 1);
-            }
+    
+        if (randomProbaDeath < adver[survivorIndex].probaDeath) {
+            history.innerHTML += "<p>Jason killed " + adver[survivorIndex].nameHero + ". Remaining heroes: " + (adver.length - 1) + "</p>";
+            document.getElementById(`${adver[survivorIndex].nameHero}`).classList.add("bg-danger");
+            adver.splice(survivorIndex, 1);
+        } else if (randomProbaDammage < adver[survivorIndex].probaDammage) {
+            let damage = 10;
+            this.hp -= damage;
+            history.innerHTML += "<p>" + adver[survivorIndex].nameHero + " dodged and inflicted 10 damage points to Jason</p>";
+            document.getElementById(`${adver[survivorIndex].nameHero}`).classList.add("bg-success");
+        } else if (randomDeathWithDammage < adver[survivorIndex].probaDeathWithDammage) {
+            let damage = 15;
+            this.hp -= damage;
+            document.getElementById(`${adver[survivorIndex].nameHero}`).classList.add("bg-warning");
+            history.innerHTML += "<p>" + adver[survivorIndex].nameHero + " died while inflicting 15 damage to Jason</p>";
+            adver.splice(survivorIndex, 1);
+        }
     }
-}
+    }
 
 class Stats {
 
@@ -87,24 +86,80 @@ for (let i = 0; i < 5; i++) {
 
 const jason = new Tueur("Jason", 100);
 
-function startGame() {
+let jasonWins = 0; // Vittorie di Jason
+let alliesWins = 0; // Vittorie degli alleati
 
-
-        while (true) {
-            if (jason.hp > 0 && survivor.length > 0) {
-                jason.attack(survivor);
-            } else if (jason.hp <= 0) {
-                document.getElementById(`jason`).classList.add("bg-danger")
-                history.innerHTML += "<p>"+"Finaly" + jason.name + " is dead"+"</p>";
-                break;
-            } else {
-                document.getElementById(`jason`).classList.add("bg-success")
-                history.innerHTML += "<p>"+ jason.name + " Win!!" +"</p>";
-                break;
-            }
-        }
-
+function updateScore() {
+    document.getElementById("jasonWins").innerText = jasonWins;
+    document.getElementById("alliesWins").innerText = alliesWins;
 }
-document.getElementById("startGame").addEventListener("click", function(){
-    startGame()
-})
+
+// Text for history updates and other messages
+function startGame() {
+    while (true) {
+        if (jason.hp > 0 && survivor.length > 0) {
+            jason.attack(survivor);
+        } else if (jason.hp <= 0) {
+            document.getElementById('jason').classList.add("bg-danger");
+            history.innerHTML += "<p>Finally " + jason.name + " is dead</p>";
+            alliesWins++; // Allies won
+            updateScore(); // Update the score
+            document.getElementById("restartGame").style.display = "block"; // Show the restart button
+            document.getElementById("startGame").style.display = "none"; // Hide the start button
+
+            break;
+        } else {
+            document.getElementById('jason').classList.add("bg-success");
+            history.innerHTML += "<p>" + jason.name + " has won!!</p>";
+            jasonWins++; // Jason won
+            updateScore(); // Update the score
+            document.getElementById("restartGame").style.display = "block"; // Show the restart button
+            document.getElementById("startGame").style.display = "none"; // Hide the start button
+            break;
+        }
+    }
+}
+
+document.getElementById("startGame").addEventListener("click", function() {
+    startGame();
+});
+
+// Text for resetting the game
+function resetGame() {
+    jason.hp = 100;
+    survivor = [];
+
+    persos = ["Fabrice", "Sarah", "Jimmy", "Max", "Boris", "Morgan", "JD", "Carla", "Bob", "Christopher", "Meryem"];
+    listClichés = [clichés1, clichés2, clichés3, clichés4, clichés5, clichés6, clichés7, clichés8, clichés9, clichés10];
+    document.getElementById("survivorRow").innerHTML = "";
+    for (let i = 0; i < 5; i++) {
+        let persosIndex = Math.floor(Math.random() * persos.length);
+        let clichesIndex = Math.floor(Math.random() * listClichés.length);
+        let personnage = listClichés[clichesIndex];
+
+        personnage.nameHero = persos[persosIndex];
+        survivor.push(personnage);
+        persos.splice(persosIndex, 1);
+        listClichés.splice(clichesIndex, 1);
+
+        document.getElementById("survivorRow").innerHTML += `
+        <div class="col-4 pt-3">
+            <div id="${personnage.nameHero}" class="card" style="width: 20rem;">
+                <img src="${personnage.img}" class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title text-center">${personnage.nameHero}</h5>
+                    <h6 class="card-title text-center">${personnage.name}</h6>
+                </div>
+            </div>
+        </div>
+        `;
+    }
+
+    document.getElementById("history").innerHTML = ""; // Clear history
+    document.getElementById("restartGame").style.display = "none"; // Hide the restart button
+    document.getElementById("startGame").style.display = "block"; // Hide the start button
+}
+
+document.getElementById("restartGame").addEventListener("click", function() {
+    resetGame();
+});
